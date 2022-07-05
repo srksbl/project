@@ -1,3 +1,5 @@
+const BASE_URL = "http://localhost:3000";
+
 /**
  * Function to create new record
  * @param {*} event
@@ -80,7 +82,7 @@ const removedAlreadyPlacesErrorState = () => {
 const createRecordByAPI = (data) => {
   // hit axios with post request or call API
   axios
-    .post("http://localhost:3000/contacts", data)
+    .post(`${BASE_URL}/contacts`, data)
     .then(function (response) {
       document.getElementById("response-msg").innerHTML = `
             <div class="alert alert-success" role="alert">
@@ -110,7 +112,7 @@ const createRecordByAPI = (data) => {
  */
 const loadAllContactsList = () => {
   axios
-    .get("http://localhost:3000/contacts")
+    .get(`${BASE_URL}/contacts`)
     .then((response) => {
       console.log(response.data);
 
@@ -148,7 +150,11 @@ const loadAllContactsList = () => {
       document.getElementById("show-rcords-list").innerHTML = html;
     })
     .catch((error) => {
-      alert(error.message);
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: error.message
+        });
     });
 };
 
@@ -179,7 +185,7 @@ const deleteRecord = (id) => {
  * @param {string} id
  */
 const callDeletApi = (id) => {
-  axios.delete(`http://localhost:3000/contacts/${id}`)
+  axios.delete(`${BASE_URL}/contacts/${id}`)
     .then(function (res) {
         Swal.fire("Deleted!", "", "success");
         loadAllContactsList();
