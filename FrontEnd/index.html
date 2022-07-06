@@ -17,7 +17,7 @@
     <link href="style/style.css" rel="stylesheet" />
 </head>
 
-<body onload="loadAllContactsList()">
+<body onload="loadAllContactsList(); loadAddForm()">
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">Contact Saver</a>
@@ -49,22 +49,7 @@
                 <div class="mb-4">
                     <h4>Add New Contact</h4>
                 </div>
-                <div id="response-msg"></div>
-                <form onsubmit="createNewRecord(event)">
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="first_name" placeholder="First Name" />
-                        <span class="error" id="first_name_error"></span>
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="last_name" placeholder="Last Name" />
-                        <span class="error" id="last_name_error"></span>
-                    </div>
-                    <div class="mb-3">
-                        <input type="text" class="form-control" id="mobile" placeholder="Contact Number" />
-                        <span class="error" id="mobile_error"></span>
-                    </div>
-                    <button type="submit" class="btn btn-primary"><i class="fa-solid fa-save"></i> Save</button>
-                </form>
+                <div id="show-form"></div>
             </div>
 
             <!-- space in middle between form list -->
@@ -86,6 +71,7 @@
         crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
     <script src="js/script.js"></script>
 </body>
 
