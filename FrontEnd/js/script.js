@@ -8,7 +8,16 @@ const loadAllContactsList = () => {
     .get(`${BASE_URL}/contacts`)
     .then((response) => {
 
-      let html = "";
+      let html = `
+        <div class="row">
+          <div class="col">
+              <h4>Contact List</h4>
+          </div>
+          <div class="col text-custom-grey">
+              <span>${response.data.length} Contacts</span>
+          </div>                    
+        </div>
+      `;
 
       if(response.data.length > 0) {
         response.data.forEach((element) => {
@@ -61,6 +70,9 @@ const loadAllContactsList = () => {
 
 const loadAddForm = () => {
   document.getElementById("show-form").innerHTML = `
+    <div class="mb-4">
+      <h4>Add New Contact</h4>
+    </div>
     <form id="createRecord" onsubmit="createNewRecord(event)">
       <div class="mb-3">
           <input type="text" class="form-control" id="first_name" placeholder="First Name" />
@@ -235,5 +247,62 @@ const callDeletApi = (id) => {
  * @param {object} selectedRecordData 
  */
 const editRecord = (selectedRecordData) => {
-  console.log(selectedRecordData);
+
+  document.getElementById("show-form").innerHTML = `
+    <div class="mb-4">
+      <h4>Update Contact</h4>
+    </div>
+    <form onsubmit="updateRecordApi(event)">
+      <div class="mb-3">
+          <input type="text" value='${selectedRecordData.first_name}' class="form-control" id="first_name" placeholder="First Name" />
+          <input type="hidden" value='${selectedRecordData.id}' class="form-control" id="contact_id" placeholder="First Name" />
+          <span class="error" id="first_name_error"></span>
+      </div>
+      <div class="mb-3">
+          <input type="text" value='${selectedRecordData.last_name}' class="form-control" id="last_name" placeholder="Last Name" />
+          <span class="error" id="last_name_error"></span>
+      </div>
+      <div class="mb-3">
+          <input type="text" value='${selectedRecordData.mobile}' class="form-control" id="mobile" placeholder="Contact Number" />
+          <span class="error" id="mobile_error"></span>
+      </div>
+      <button type="submit" class="btn btn-primary"><i class="fa-solid fa-pencil"></i> Update</button>
+      <button type="button" onclick='loadAddForm()' class="btn btn-light">Cancel</button>
+    </form>
+  `;
+}
+
+
+const updateRecordApi = (e) => {
+  e.preventDefault();
+
+  const firstName = document.querySelector("#first_name").value;
+  const lastName = document.querySelector("#last_name").value;
+  const mobile = document.querySelector("#mobile").value;
+  const id = document.querySelector("#contact_id").value;
+
+  const isValid = validateForm(firstName, lastName, mobile);
+  if (isValid) {
+    // create record by axios
+    const data = {
+      first_name: firstName,
+      last_name: lastName,
+      mobile: mobile,
+      created_at: Date.now()
+    };
+
+    axios.put(`${BASE_URL}/contacts/${id}`, data)
+    .then(response =>{
+      Swal.fire("Record successfully updated!", "", "success");
+      loadAllContactsList();
+    })
+    .catch((error) => {
+      Swal.fire({
+        icon: 'error',
+        title: 'Oops...',
+        text: error.message
+      });
+    });
+    
+  }
 }
