@@ -40,7 +40,7 @@ const displayAllRecords = (response, total, currentPage = 1) => {
           <h4>Contact List</h4>
       </div>
       <div class="col text-custom-grey">
-          <span>${response.data.length} Contacts</span>
+          <span>${total} Contacts</span>
       </div>                    
     </div>
   `;
