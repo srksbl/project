@@ -4,59 +4,15 @@ const BASE_URL = "http://localhost:3000";
  * Function to fetch all records
  */
 const loadAllContactsList = () => {
-  axios
-    .get(`${BASE_URL}/contacts`)
-    .then((response) => {
-
-      let html = `
-        <div class="row">
-          <div class="col">
-              <h4>Contact List</h4>
-          </div>
-          <div class="col text-custom-grey">
-              <span>${response.data.length} Contacts</span>
-          </div>                    
-        </div>
-      `;
-
-      if(response.data.length > 0) {
-        response.data.forEach((element) => {
-          html += `
-              <div class="card mb-2">
-                  <div class="card-body">
-                      <div class="row">
-                          <div class="col-sm-6">
-                              <h5 class="card-title">${element.first_name} ${element.last_name}</h5>
-                          </div>
-                          <div class="col-sm-6 text-custom-grey">
-                              <h6 class="text-custom-grey">${ moment(element.created_at).fromNow() }</h6>
-                          </div>
-                      </div>
-  
-                      <div class="row">
-                          <div class="col-sm-6">
-                              <small><i class="fa-solid fa-phone text-primary"></i> ${element.mobile}</small>
-                          </div>
-                          <div class="col-sm-6 text-custom-grey">
-                              <button type="button" class="btn btn-info btn-sm card-link" onclick='editRecord(${JSON.stringify(element)})' >
-                                  <i class="fa-solid fa-edit"></i> Edit
-                              </button>
-                              <button type="button" class="btn btn-danger btn-sm card-link" onclick='deleteRecord(${element.id})'>
-                                  <i class="fa-solid fa-trash"></i> Delete
-                              </button>
-                          </div>
-                      </div>
-                  </div>
-              </div>`;
-          });
-      } else {
-        html = `
-        <div class="alert alert-danger" role="alert">
-          <i class='fa fa-info-circle'></i> No record found!
-        </div>`;
-      }
-
-      document.getElementById("show-rcords-list").innerHTML = html;
+  axios.get(`${BASE_URL}/contacts`)
+    .then(response => {
+      return response.data.length;
+    })
+    .then(totalRec => {
+      axios.get(`${BASE_URL}/contacts?_page=1&_limit=4`)
+      .then(response => {
+        displayAllRecords(response, totalRec);
+      })
     })
     .catch((error) => {
         Swal.fire({
@@ -67,7 +23,110 @@ const loadAllContactsList = () => {
     });
 };
 
+/**
+ * Function to responsible records desplay on UI page
+ * @param {object} response 
+ */
+const displayAllRecords = (response, total, currentPage = 1) => {
 
+  const CUREENT_PAGE = currentPage;
+  const LIMIT = 4;
+  const totalRecords = total;
+  const totalPages = Math.ceil(totalRecords / LIMIT);
+
+  let html = `
+    <div class="row">
+      <div class="col">
+          <h4>Contact List</h4>
+      </div>
+      <div class="col text-custom-grey">
+          <span>${response.data.length} Contacts</span>
+      </div>                    
+    </div>
+  `;
+
+  if(totalRecords > 0) {
+    response.data.forEach((element) => {
+      html += `
+          <div class="card mb-2">
+              <div class="card-body">
+                  <div class="row">
+                      <div class="col-sm-6">
+                          <h5 class="card-title">${element.first_name} ${element.last_name}</h5>
+                      </div>
+                      <div class="col-sm-6 text-custom-grey">
+                          <h6 class="text-custom-grey">${ moment(element.created_at).fromNow() }</h6>
+                      </div>
+                  </div>
+
+                  <div class="row">
+                      <div class="col-sm-6">
+                          <small><i class="fa-solid fa-phone text-primary"></i> ${element.mobile}</small>
+                      </div>
+                      <div class="col-sm-6 text-custom-grey">
+                          <button type="button" class="btn btn-info btn-sm card-link" onclick='editRecord(${JSON.stringify(element)})' >
+                              <i class="fa-solid fa-edit"></i> Edit
+                          </button>
+                          <button type="button" class="btn btn-danger btn-sm card-link" onclick='deleteRecord(${element.id})'>
+                              <i class="fa-solid fa-trash"></i> Delete
+                          </button>
+                      </div>
+                  </div>
+              </div>
+          </div>`;
+      });
+
+      let paginationHTML = `
+        <nav aria-label="Page navigation example">
+          <ul class="pagination">
+            <li class="page-item"><span class="page-link" onclick='goPage(${CUREENT_PAGE - 1}, ${total}, ${LIMIT}, ${totalPages})' >Previous</span></li>            
+        `;
+
+      for(let i = 1; totalPages >= i; i++) {
+        paginationHTML += `
+          <li class="page-item ${CUREENT_PAGE == i ? 'active' : ''}"><span class="page-link" onclick='goPage(${i}, ${total}, ${LIMIT}, ${totalPages})' >${i}</span></li>
+        `;
+      }
+
+      paginationHTML += `
+          <li class="page-item"><span class="page-link" onclick='goPage(${CUREENT_PAGE + 1}, ${total}, ${LIMIT}, ${totalPages})' >Next</span></li>
+          </ul>
+        </nav>`;
+
+      document.getElementById("pagination").innerHTML = paginationHTML;
+
+
+  } else {
+    html = `
+    <div class="alert alert-danger" role="alert">
+      <i class='fa fa-info-circle'></i> No record found!
+    </div>`;
+  }
+
+  document.getElementById("show-rcords-list").innerHTML = html;
+}
+
+/**
+ * Function to get records by pagination
+ * @param {number} nextPageNo 
+ * @param {number} total 
+ * @param {number} limit
+ * @param {number} totalPages
+ */
+const goPage = (nextPageNo, totalRecords, LIMIT, totalPages) => {
+
+  if (nextPageNo != 0 && !(nextPageNo > totalPages) ) {
+    axios.get(`${BASE_URL}/contacts?_page=${nextPageNo}&_limit=${LIMIT}`)
+      .then(response => {
+        displayAllRecords(response, totalRecords, nextPageNo);
+      })
+  }
+}
+
+
+/**
+ * Function to dispay form on UI
+ */
 const loadAddForm = () => {
   document.getElementById("show-form").innerHTML = `
     <div class="mb-4">
